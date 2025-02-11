@@ -186,3 +186,7 @@ C:\Users\Aby Biju\Desktop\Habyx\habyx\obj\Debug\net8.0\refint\habyx.dll
 C:\Users\Aby Biju\Desktop\Habyx\habyx\obj\Debug\net8.0\habyx.pdb
 C:\Users\Aby Biju\Desktop\Habyx\habyx\obj\Debug\net8.0\habyx.genruntimeconfig.cache
 C:\Users\Aby Biju\Desktop\Habyx\habyx\obj\Debug\net8.0\ref\habyx.dll
+C:\Users\Aby Biju\Desktop\Habyx\habyx\bin\Debug\net8.0\Azure.Storage.Blobs.dll
+C:\Users\Aby Biju\Desktop\Habyx\habyx\bin\Debug\net8.0\Azure.Storage.Common.dll
+C:\Users\Aby Biju\Desktop\Habyx\habyx\bin\Debug\net8.0\System.IO.Hashing.dll
+C:\Users\Aby Biju\Desktop\Habyx\habyx\obj\Debug\net8.0\habyx.sourcelink.json

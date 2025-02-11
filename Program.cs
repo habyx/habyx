@@ -27,11 +27,21 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 // Register Services
 builder.Services.AddScoped<JwtService>();
 builder.Services.AddScoped<FileService>();
+builder.Services.AddScoped<BlobService>();
 
 // Add services to the container.
 builder.Services.AddControllers();
+
+// Updated DbContext configuration with retry logic
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"),
+        sqlServerOptionsAction: sqlOptions =>
+        {
+            sqlOptions.EnableRetryOnFailure(
+                maxRetryCount: 5,
+                maxRetryDelay: TimeSpan.FromSeconds(30),
+                errorNumbersToAdd: null);
+        }));
 
 // Add Swagger configuration with authentication
 builder.Services.AddSwaggerGen(c =>
