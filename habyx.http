@@ -1,0 +1,6 @@
+@habyx_HostAddress = http://localhost:5272
+
+GET {{habyx_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
