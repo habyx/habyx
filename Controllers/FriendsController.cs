@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using habyx.Data;
 using habyx.Models;
+using habyx.Services;
 
 namespace habyx.Controllers
 {
@@ -13,16 +14,19 @@ namespace habyx.Controllers
     public class FriendsController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
+        private readonly BlobService _blobService;
 
-        public FriendsController(ApplicationDbContext context)
+        public FriendsController(ApplicationDbContext context, BlobService blobService)
         {
             _context = context;
+            _blobService = blobService;
         }
 
-        // GET: api/Friends
+        // Existing endpoints remain the same...
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Friend>>> GetFriends()
         {
+            // Your existing GetFriends implementation
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(userIdClaim))
                 return Unauthorized();
@@ -36,10 +40,10 @@ namespace habyx.Controllers
                 .ToListAsync();
         }
 
-        // POST: api/Friends/send-request/{userId}
         [HttpPost("send-request/{userId}")]
         public async Task<ActionResult<Friend>> SendFriendRequest(int userId)
         {
+            // Your existing SendFriendRequest implementation
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(userIdClaim))
                 return Unauthorized();
@@ -71,10 +75,10 @@ namespace habyx.Controllers
             return CreatedAtAction(nameof(GetFriends), new { id = friendRequest.Id }, friendRequest);
         }
 
-        // PUT: api/Friends/respond/{requestId}
         [HttpPut("respond/{requestId}")]
         public async Task<IActionResult> RespondToRequest(int requestId, [FromBody] FriendStatus status)
         {
+            // Your existing RespondToRequest implementation
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(userIdClaim))
                 return Unauthorized();
@@ -98,10 +102,10 @@ namespace habyx.Controllers
             return NoContent();
         }
 
-        // DELETE: api/Friends/{friendId}
         [HttpDelete("{friendId}")]
         public async Task<IActionResult> RemoveFriend(int friendId)
         {
+            // Your existing RemoveFriend implementation
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(userIdClaim))
                 return Unauthorized();
@@ -121,10 +125,10 @@ namespace habyx.Controllers
             return NoContent();
         }
 
-        // GET: api/Friends/pending
         [HttpGet("pending")]
         public async Task<ActionResult<IEnumerable<Friend>>> GetPendingRequests()
         {
+            // Your existing GetPendingRequests implementation
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(userIdClaim))
                 return Unauthorized();
@@ -134,6 +138,64 @@ namespace habyx.Controllers
                 .Where(f => f.AddresseeId == userId && f.Status == FriendStatus.Pending)
                 .Include(f => f.Requester)
                 .ToListAsync();
+        }
+
+        // New endpoint for uploading profile image
+        [HttpPost("upload-profile-image")]
+        public async Task<ActionResult<string>> UploadProfileImage(IFormFile file)
+        {
+            if (file == null || file.Length == 0)
+                return BadRequest("No file uploaded");
+
+            if (!file.ContentType.StartsWith("image/"))
+                return BadRequest("File must be an image");
+
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userId))
+                return Unauthorized();
+
+            var user = await _context.Users.FindAsync(int.Parse(userId));
+            if (user == null)
+                return NotFound("User not found");
+
+            // Generate unique filename
+            var fileName = $"profile_{userId}_{Guid.NewGuid()}{Path.GetExtension(file.FileName)}";
+            
+            // Upload to blob storage
+            var imageUrl = await _blobService.UploadImageAsync(file, fileName);
+
+            // Update user profile
+            if (!string.IsNullOrEmpty(user.ProfileImageUrl))
+            {
+                await _blobService.DeleteImageAsync(user.ProfileImageUrl);
+            }
+
+            user.ProfileImageUrl = imageUrl;
+            await _context.SaveChangesAsync();
+
+            return Ok(imageUrl);
+        }
+
+        // New endpoint for deleting profile image
+        [HttpDelete("profile-image")]
+        public async Task<IActionResult> DeleteProfileImage()
+        {
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userId))
+                return Unauthorized();
+
+            var user = await _context.Users.FindAsync(int.Parse(userId));
+            if (user == null)
+                return NotFound("User not found");
+
+            if (!string.IsNullOrEmpty(user.ProfileImageUrl))
+            {
+                await _blobService.DeleteImageAsync(user.ProfileImageUrl);
+                user.ProfileImageUrl = null;
+                await _context.SaveChangesAsync();
+            }
+
+            return NoContent();
         }
     }
 }

@@ -24,7 +24,8 @@ namespace habyx.Models
         [StringLength(500)]
         public string? Bio { get; set; }
 
-        public string? ProfileImagePath { get; set; }
+        public string? ProfileImageUrl { get; set; }  // For storing the Azure Blob URL
+        public string? ProfileImagePath { get; set; }  // For storing local path if needed
         public string? Location { get; set; }
 
         // Dating app features
@@ -37,6 +38,11 @@ namespace habyx.Models
         public string? Skills { get; set; }
         public string? Education { get; set; }
 
+        // Image-related properties
+        public DateTime? LastImageUpdateTime { get; set; }
+        public string? ImageThumbnailUrl { get; set; }
+
+        // Timestamps
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
     }

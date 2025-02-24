@@ -5,6 +5,7 @@ using Microsoft.OpenApi.Models;
 using System.Text;
 using habyx.Data;
 using habyx.Services;
+using Azure.Storage.Blobs;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,7 +21,8 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidateIssuerSigningKey = true,
             ValidIssuer = builder.Configuration["Jwt:Issuer"],
             ValidAudience = builder.Configuration["Jwt:Issuer"],
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(
+    builder.Configuration["Jwt:Key"] ?? throw new InvalidOperationException("JWT Key is not configured")))
         };
     });
 
@@ -28,6 +30,10 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 builder.Services.AddScoped<JwtService>();
 builder.Services.AddScoped<FileService>();
 builder.Services.AddScoped<BlobService>();
+
+// Add Azure Blob service configuration
+builder.Services.AddSingleton(x => 
+    new BlobServiceClient(builder.Configuration.GetConnectionString("AzureStorage")));
 
 // Add services to the container.
 builder.Services.AddControllers();
@@ -71,6 +77,23 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
+// Configure CORS with specific origins
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll",
+        builder =>
+        {
+            builder
+                .WithOrigins(
+                    "https://gentle-flower-06c0bcc10.6.azurestaticapps.net",
+                    "http://localhost:3000"
+                )
+                .AllowAnyMethod()
+                .AllowAnyHeader()
+                .AllowCredentials();
+        });
+});
+
 builder.Services.AddEndpointsApiExplorer();
 
 var app = builder.Build();
@@ -83,6 +106,9 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+// Use CORS - ensure this is before Authentication and Authorization
+app.UseCors("AllowAll");
 
 app.UseAuthentication();
 app.UseAuthorization();

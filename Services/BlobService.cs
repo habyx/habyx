@@ -18,19 +18,21 @@ namespace habyx.Services
         public async Task<string> UploadImageAsync(IFormFile file, string fileName)
         {
             var containerClient = _blobServiceClient.GetBlobContainerClient(_containerName);
-            var blobClient = containerClient.GetBlobClient(fileName);
+            await containerClient.CreateIfNotExistsAsync(PublicAccessType.Blob);
 
-            using var stream = file.OpenReadStream();
+            var blobClient = containerClient.GetBlobClient(fileName);
             var blobHttpHeaders = new BlobHttpHeaders { ContentType = file.ContentType };
             
+            using var stream = file.OpenReadStream();
             await blobClient.UploadAsync(stream, new BlobUploadOptions { HttpHeaders = blobHttpHeaders });
 
             return blobClient.Uri.ToString();
         }
 
-        public async Task DeleteImageAsync(string fileName)
+        public async Task DeleteImageAsync(string imageUrl)
         {
             var containerClient = _blobServiceClient.GetBlobContainerClient(_containerName);
+            var fileName = Path.GetFileName(new Uri(imageUrl).LocalPath);
             var blobClient = containerClient.GetBlobClient(fileName);
             await blobClient.DeleteIfExistsAsync();
         }
