@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\Aby Biju\\Desktop\\Habyx\\habyx\\habyx.csproj": {}
+    "C:\\Users\\Aby Biju\\Desktop\\Habyx\\habyx-frontend\\habyx.csproj": {}
   },
   "projects": {
-    "C:\\Users\\Aby Biju\\Desktop\\Habyx\\habyx\\habyx.csproj": {
+    "C:\\Users\\Aby Biju\\Desktop\\Habyx\\habyx-frontend\\habyx.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Aby Biju\\Desktop\\Habyx\\habyx\\habyx.csproj",
+        "projectUniqueName": "C:\\Users\\Aby Biju\\Desktop\\Habyx\\habyx-frontend\\habyx.csproj",
         "projectName": "habyx",
-        "projectPath": "C:\\Users\\Aby Biju\\Desktop\\Habyx\\habyx\\habyx.csproj",
+        "projectPath": "C:\\Users\\Aby Biju\\Desktop\\Habyx\\habyx-frontend\\habyx.csproj",
         "packagesPath": "C:\\Users\\Aby Biju\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Aby Biju\\Desktop\\Habyx\\habyx\\obj\\",
+        "outputPath": "C:\\Users\\Aby Biju\\Desktop\\Habyx\\habyx-frontend\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\Aby Biju\\AppData\\Roaming\\NuGet\\NuGet.Config"

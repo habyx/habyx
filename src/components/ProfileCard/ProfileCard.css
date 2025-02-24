@@ -1,0 +1,82 @@
+.profile-card {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    padding: 20px;
+    max-width: 400px;
+    margin: 20px auto;
+  }
+  
+  .profile-image {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  
+  .profile-image img {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid #007bff;
+  }
+  
+  .profile-info {
+    text-align: center;
+  }
+  
+  .profile-info h2 {
+    margin: 0;
+    color: #333;
+    font-size: 24px;
+  }
+  
+  .profile-info h3 {
+    margin: 10px 0;
+    color: #666;
+    font-size: 18px;
+  }
+  
+  .location {
+    color: #888;
+    font-size: 14px;
+    margin: 5px 0;
+  }
+  
+  .bio {
+    margin: 15px 0;
+    color: #444;
+    line-height: 1.5;
+  }
+  
+  .profile-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+  }
+  
+  .profile-actions button {
+    flex: 1;
+    padding: 10px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 500;
+  }
+  
+  .edit-profile {
+    background-color: #007bff;
+    color: white;
+  }
+  
+  .view-friends {
+    background-color: #6c757d;
+    color: white;
+  }
+  
+  .edit-profile:hover {
+    background-color: #0056b3;
+  }
+  
+  .view-friends:hover {
+    background-color: #5a6268;
+  }
