@@ -22,7 +22,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidIssuer = builder.Configuration["Jwt:Issuer"],
             ValidAudience = builder.Configuration["Jwt:Issuer"],
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(
-    builder.Configuration["Jwt:Key"] ?? throw new InvalidOperationException("JWT Key is not configured")))
+                builder.Configuration["Jwt:Key"] ?? throw new InvalidOperationException("JWT Key is not configured")))
         };
     });
 
@@ -33,7 +33,7 @@ builder.Services.AddScoped<BlobService>();
 
 // Add Azure Blob service configuration
 builder.Services.AddSingleton(x => 
-    new BlobServiceClient(builder.Configuration.GetConnectionString("AzureStorage")));
+    new BlobServiceClient(builder.Configuration["AzureStorageConnection"])); // Updated line
 
 // Add services to the container.
 builder.Services.AddControllers();
