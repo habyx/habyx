@@ -14,6 +14,10 @@ namespace habyx.Data
         public DbSet<User> Users { get; set; }
         public DbSet<Friend> Friends { get; set; }
         public DbSet<Message> Messages { get; set; }
+        
+        // Add new DbSets for Housing features
+        public DbSet<HousingListing> HousingListings { get; set; }
+        public DbSet<HousingApplication> HousingApplications { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -51,6 +55,25 @@ namespace habyx.Data
                 .HasOne(m => m.Receiver)
                 .WithMany()
                 .HasForeignKey(m => m.ReceiverId)
+                .OnDelete(DeleteBehavior.Restrict);
+                
+            // Configure Housing relationships
+            modelBuilder.Entity<HousingListing>()
+                .HasOne(h => h.Owner)
+                .WithMany()
+                .HasForeignKey(h => h.OwnerId)
+                .OnDelete(DeleteBehavior.Restrict);
+                
+            modelBuilder.Entity<HousingApplication>()
+                .HasOne(a => a.Listing)
+                .WithMany()
+                .HasForeignKey(a => a.ListingId)
+                .OnDelete(DeleteBehavior.Cascade);
+                
+            modelBuilder.Entity<HousingApplication>()
+                .HasOne(a => a.Applicant)
+                .WithMany()
+                .HasForeignKey(a => a.ApplicantId)
                 .OnDelete(DeleteBehavior.Restrict);
         }
     }
