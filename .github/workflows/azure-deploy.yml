@@ -18,14 +18,33 @@ jobs:
         with:
           dotnet-version: '8.0.x'
 
-      - name: List project files
-        run: find . -name "*.csproj" -o -name "*.sln"
-        
+      - name: Find project files
+        id: find-project
+        run: |
+          find . -name "*.csproj" -o -name "*.sln"
+          PROJECT_FILE=$(find . -name "*.csproj" | grep -i "habyx" | head -n 1)
+          echo "Found project file: $PROJECT_FILE"
+          echo "project_file=$PROJECT_FILE" >> $GITHUB_OUTPUT
+
       - name: Build with dotnet
-        run: dotnet build habyx.csproj --configuration Release
+        run: |
+          PROJECT_FILE="${{ steps.find-project.outputs.project_file }}"
+          if [[ -z "$PROJECT_FILE" ]]; then
+            # Fallback to searching for any csproj
+            PROJECT_FILE=$(find . -name "*.csproj" | head -n 1)
+          fi
+          echo "Building $PROJECT_FILE"
+          dotnet build "$PROJECT_FILE" --configuration Release
 
       - name: dotnet publish
-        run: dotnet publish habyx.csproj -c Release -o ${{github.workspace}}/publish
+        run: |
+          PROJECT_FILE="${{ steps.find-project.outputs.project_file }}"
+          if [[ -z "$PROJECT_FILE" ]]; then
+            # Fallback to searching for any csproj
+            PROJECT_FILE=$(find . -name "*.csproj" | head -n 1)
+          fi
+          echo "Publishing $PROJECT_FILE"
+          dotnet publish "$PROJECT_FILE" -c Release -o ${{github.workspace}}/publish
 
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v2
