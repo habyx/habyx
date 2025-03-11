@@ -33,7 +33,8 @@ builder.Services.AddScoped<BlobService>();
 
 // Add Azure Blob service configuration
 builder.Services.AddSingleton(x => 
-    new BlobServiceClient(builder.Configuration["AzureStorageConnection"])); // Updated line
+    new BlobServiceClient(builder.Configuration.GetConnectionString("AzureStorage") ?? 
+                          builder.Configuration["AzureStorageConnection"])); 
 
 // Add services to the container.
 builder.Services.AddControllers();
@@ -86,7 +87,9 @@ builder.Services.AddCors(options =>
             builder
                 .WithOrigins(
                     "https://gentle-flower-06c0bcc10.6.azurestaticapps.net",
-                    "http://localhost:3000"
+                    "http://localhost:3000",
+                    "https://www.habyx.com",  // Added your custom domain
+                    "https://habyx-frontend.azurewebsites.net"
                 )
                 .AllowAnyMethod()
                 .AllowAnyHeader()
@@ -96,11 +99,18 @@ builder.Services.AddCors(options =>
 
 builder.Services.AddEndpointsApiExplorer();
 
+// Build the app
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
+else 
+{
+    // Still enable Swagger in production for testing
     app.UseSwagger();
     app.UseSwaggerUI();
 }

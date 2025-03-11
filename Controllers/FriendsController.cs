@@ -22,11 +22,10 @@ namespace habyx.Controllers
             _blobService = blobService;
         }
 
-        // Existing endpoints remain the same...
+        // GET: api/Friends
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Friend>>> GetFriends()
         {
-            // Your existing GetFriends implementation
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(userIdClaim))
                 return Unauthorized();
@@ -34,16 +33,16 @@ namespace habyx.Controllers
             var userId = int.Parse(userIdClaim);
             return await _context.Friends
                 .Where(f => (f.RequesterId == userId || f.AddresseeId == userId) 
-                           && f.Status == FriendStatus.Accepted)
+                           && f.Status == "Accepted")
                 .Include(f => f.Requester)
                 .Include(f => f.Addressee)
                 .ToListAsync();
         }
 
+        // POST: api/Friends/send-request/{userId}
         [HttpPost("send-request/{userId}")]
         public async Task<ActionResult<Friend>> SendFriendRequest(int userId)
         {
-            // Your existing SendFriendRequest implementation
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(userIdClaim))
                 return Unauthorized();
@@ -65,7 +64,7 @@ namespace habyx.Controllers
             {
                 RequesterId = requesterId,
                 AddresseeId = userId,
-                Status = FriendStatus.Pending,
+                Status = "Pending", // Changed from enum to string
                 CreatedAt = DateTime.UtcNow
             };
 
@@ -75,15 +74,15 @@ namespace habyx.Controllers
             return CreatedAtAction(nameof(GetFriends), new { id = friendRequest.Id }, friendRequest);
         }
 
+        // PUT: api/Friends/respond/{requestId}
         [HttpPut("respond/{requestId}")]
-        public async Task<IActionResult> RespondToRequest(int requestId, [FromBody] FriendStatus status)
+        public async Task<IActionResult> RespondToRequest(int requestId, [FromBody] string status)
         {
-            // Your existing RespondToRequest implementation
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(userIdClaim))
                 return Unauthorized();
 
-            if (status != FriendStatus.Accepted && status != FriendStatus.Rejected)
+            if (status != "Accepted" && status != "Rejected")
                 return BadRequest("Invalid status");
 
             var userId = int.Parse(userIdClaim);
@@ -96,16 +95,16 @@ namespace habyx.Controllers
                 return Forbid();
 
             request.Status = status;
-            request.UpdatedAt = DateTime.UtcNow;
+            request.UpdatedAt = DateTime.UtcNow; // Track update timestamp
 
             await _context.SaveChangesAsync();
             return NoContent();
         }
 
+        // DELETE: api/Friends/{friendId}
         [HttpDelete("{friendId}")]
         public async Task<IActionResult> RemoveFriend(int friendId)
         {
-            // Your existing RemoveFriend implementation
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(userIdClaim))
                 return Unauthorized();
@@ -125,22 +124,22 @@ namespace habyx.Controllers
             return NoContent();
         }
 
+        // GET: api/Friends/pending
         [HttpGet("pending")]
         public async Task<ActionResult<IEnumerable<Friend>>> GetPendingRequests()
         {
-            // Your existing GetPendingRequests implementation
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(userIdClaim))
                 return Unauthorized();
 
             var userId = int.Parse(userIdClaim);
             return await _context.Friends
-                .Where(f => f.AddresseeId == userId && f.Status == FriendStatus.Pending)
+                .Where(f => f.AddresseeId == userId && f.Status == "Pending")
                 .Include(f => f.Requester)
                 .ToListAsync();
         }
 
-        // New endpoint for uploading profile image
+        // POST: api/Friends/upload-profile-image
         [HttpPost("upload-profile-image")]
         public async Task<ActionResult<string>> UploadProfileImage(IFormFile file)
         {
@@ -158,17 +157,11 @@ namespace habyx.Controllers
             if (user == null)
                 return NotFound("User not found");
 
-            // Generate unique filename
             var fileName = $"profile_{userId}_{Guid.NewGuid()}{Path.GetExtension(file.FileName)}";
-            
-            // Upload to blob storage
             var imageUrl = await _blobService.UploadImageAsync(file, fileName);
 
-            // Update user profile
             if (!string.IsNullOrEmpty(user.ProfileImageUrl))
-            {
                 await _blobService.DeleteImageAsync(user.ProfileImageUrl);
-            }
 
             user.ProfileImageUrl = imageUrl;
             await _context.SaveChangesAsync();
@@ -176,7 +169,7 @@ namespace habyx.Controllers
             return Ok(imageUrl);
         }
 
-        // New endpoint for deleting profile image
+        // DELETE: api/Friends/profile-image
         [HttpDelete("profile-image")]
         public async Task<IActionResult> DeleteProfileImage()
         {

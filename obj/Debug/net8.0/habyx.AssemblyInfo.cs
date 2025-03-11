@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("habyx")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+2b4c8d9502d5c1e3fafcfd05e7b7b7096b5235c4")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+5a23af27a6e7406e933e3e66c0515b9fe47b94c5")]
 [assembly: System.Reflection.AssemblyProductAttribute("habyx")]
 [assembly: System.Reflection.AssemblyTitleAttribute("habyx")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
